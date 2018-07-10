@@ -21,7 +21,7 @@ namespace Kernel.WebApi.Providers
 
         public AuthenticationResult Authenticate(string Username, string Password)
         {
-            AuthenticationResult resultaaaaaaa = new AuthenticationResult();
+            AuthenticationResult result = new AuthenticationResult();
 
 
             UserInfo userInfo = A1CContext.MySql.DB.Sql(@"
