@@ -44,6 +44,16 @@ namespace Kernel.WebApi.Controllers
             });
         }
 
+        [HttpPost]
+        public IHttpActionResult SavePatient(Patient entity)
+        {
+            return ApiResult<bool>(() =>
+            {
+                this.CoreBusinessRules.SavePatient(entity);
+                return true;
+            });
+        }
+
 
         [HttpPost]
         public IHttpActionResult SaveUserInfo(Entities.UserInfo entity)
@@ -51,6 +61,16 @@ namespace Kernel.WebApi.Controllers
             return ApiResult<bool>(() =>
             {
                 return this.CoreBusinessRules.SaveUserInfo(entity);
+            });
+        }
+
+        [HttpPost]
+        public IHttpActionResult GetPatientByRG([FromBody] string RG)
+        {
+            return ApiResult<Patient>(() =>
+            {
+
+                return this.CoreBusinessRules.GetPatientByRG(RG);
             });
         }
         #endregion

@@ -8,18 +8,16 @@ using System.Web;
 namespace Kernel.WebApi.Entities
 {
     [HasSelfValidation]
-    public class UserInfo : EntityBase<UserInfo>
+    public class Patient : EntityBase<Patient>
     {
         public int Id { get; set; }
         public string Email { get; set; }
+        public bool? Gender { get; set; }
+        public DateTime? Birthdate { get; set; }
         public string Name { get; set; }
-        public string Password { get; set; }
-        public string ConfirmPassword { get; set; }
-        public int PatientId { get; set; }
         public string RG { get; set; }
         public string PhoneNumber { get; set; }
         public DateTime UpdateDate { get; set; }
-        public Patient Patient { get; set; }
         public bool IsDeleted { get; set; }
 
 
@@ -28,7 +26,7 @@ namespace Kernel.WebApi.Entities
         [SelfValidation]
         public void Validate(ValidationResults errorResults)
         {
-            string tag = "UserInfo";
+            string tag = "Patient";
             if (IsNullOrEmptyOrEqualZero(this.Name))
             {
                 errorResults.AddResult(formatMessage(tag, "Name", " Necessário preencher o campo email"));
@@ -39,16 +37,6 @@ namespace Kernel.WebApi.Entities
                 errorResults.AddResult(formatMessage(tag, "Email"," Necessário preencher o campo nome"));
             }
 
-
-            if (IsNullOrEmptyOrEqualZero(this.Password))
-            {
-                errorResults.AddResult(formatMessage(tag, "Password", " Necessário preencher o campo senha"));
-            }
-
-            if (this.Password != this.ConfirmPassword)
-            {
-                errorResults.AddResult(formatMessage(tag, "ConfirmPassword", " As senhas não conferem"));
-            }
 
             if (IsNullOrEmptyOrEqualZero(this.PhoneNumber))
             {

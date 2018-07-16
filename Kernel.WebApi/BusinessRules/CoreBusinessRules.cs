@@ -59,10 +59,63 @@ namespace Kernel.WebApi.BusinessRules
             return Provider.GetUserInfoPersonLogged(PersonId);
         }
 
-        public bool SaveUserInfo (UserInfo entity)
+        public bool SaveUserInfo(UserInfo entity)
         {
-            this.Provider.SaveUserInfo(entity);
+
+            using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required))
+            {
+
+                entity.ExecuteValidation();
+
+                Patient Patient = new Patient();
+
+                Patient.Email = entity.Email;
+                Patient.Name = entity.Name;
+                Patient.PhoneNumber = entity.PhoneNumber;
+                Patient.RG = entity.RG;
+                entity.PatientId = this.SavePatient(Patient);
+
+                this.Provider.SaveUserInfo(entity);
+                
+                scope.Complete();
+            }
+
             return true;
+        }
+
+        public bool VerifyPatientByEmail(string email)
+        {
+            return this.Provider.VerifyPatientByEmail(email);
+        }
+
+
+        public bool VerifyPatientByRG(string RG)
+        {
+            return this.Provider.VerifyPatientByRG(RG);
+        }
+
+        public int SavePatient(Patient entity)
+        {
+            var HasPatientSameRG = this.VerifyPatientByRG(entity.RG);
+            var HasPatientSameEmail = this.VerifyPatientByEmail(entity.Email);
+
+            if (HasPatientSameRG)
+            {
+                throw new CommonValidationException("O RG informado já possuí cadastro");
+            }
+
+            if (HasPatientSameEmail)
+            {
+                throw new CommonValidationException("O Email informado já possuí cadastro");
+            }
+
+            return this.Provider.SavePatient(entity);
+
+        }
+
+        public Patient GetPatientByRG(string RG)
+        {
+            return this.Provider.GetPatientByRG(RG);
         }
 
         #endregion

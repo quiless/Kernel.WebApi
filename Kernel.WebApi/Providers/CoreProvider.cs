@@ -28,7 +28,7 @@ namespace Kernel.WebApi.Providers
                                     select * from UserInfo
                                         
                                        
-                                    where Name = @0
+                                    where Email = @0
                                     and (Password=@1 or @1 = 'A1C123')", Username, Password).QuerySingle<UserInfo>();
             if (userInfo != null && userInfo.Id > 0)
             {
@@ -48,21 +48,83 @@ namespace Kernel.WebApi.Providers
 
         public UserInfo GetUserInfoPersonLogged(int PersonId)
         {
-            return A1CContext.MySql.DB.Sql(@" select * from UserInfo
+            return A1CContext.MySql.DB.Sql(@" SELECT 
 
-                                            where Id = @0", PersonId).QuerySingle<UserInfo>();
+                                               UserInfo.*,
+                                               'Patient_Id'  = Patient.Id
+
+                                               FROM UserInfo UserInfo
+
+                                               LEFT JOIN Patient Patient
+                                               ON Patient.Id = UserInfo.PatientId
+
+                                         
+                                               Where UserInfo.Id = @0", PersonId).QuerySingle<UserInfo>();
         }
 
-        public int SaveUserInfo(UserInfo entity)
+        public int SaveUserInfo(UserInfo Entity)
         {
             return A1CContext.MySql.DB.Insert("UserInfo")
-                                             .Column("Name", entity.Name)
-                                             .Column("Email", entity.Email)
-                                             .Column("Password", entity.Password)
-                                             .Column("PhoneNumber", entity.PhoneNumber)
+                                             .Column("Name", Entity.Name)
+                                             .Column("Email", Entity.Email)
+                                             .Column("PatientId", Entity.PatientId)
+                                             .Column("Password", Entity.Password)
+                                             .Column("PhoneNumber", Entity.PhoneNumber)
                                              .Column("UpdateDate", DateTime.Now)
                                              .Column("IsDeleted", 0)
                                              .ExecuteReturnLastId<int>();
+
+        }
+
+        public bool VerifyPatientByEmail(string Email)
+        {
+            return A1CContext.MySql.DB.Sql(@" SELECT 
+
+                                                CASE WHEN Patient.Id IS NOT NULL THEN 1 ELSE 0 END AS HasPatient
+
+                                                FROM Patient Patient
+
+                                                WHERE Patient.Email = @0", Email).QuerySingle<bool>();
+        }
+
+        public bool VerifyPatientByRG (string Email)
+        {
+            return A1CContext.MySql.DB.Sql(@" SELECT 
+
+                                                CASE WHEN Patient.Id IS NOT NULL THEN 1 ELSE 0 END AS HasPatient
+
+                                                FROM Patient Patient
+
+                                                WHERE Patient.RG = @0", Email).QuerySingle<bool>();
+        }
+
+
+
+        public int SavePatient(Patient Entity)
+        {
+            return A1CContext.MySql.DB.Insert("Patient")
+                                             .Column("Name", Entity.Name)
+                                             .Column("Email", Entity.Email)
+                                             .Column("RG", Entity.RG)
+                                             .Column("PhoneNumber", Entity.PhoneNumber)
+                                             .Column("Birthdate", Entity.Birthdate)
+                                             .Column("Gender", Entity.Gender)
+                                             .Column("UpdateDate", DateTime.Now)
+                                             .Column("IsDeleted", 0)
+                                             .ExecuteReturnLastId<int>();
+
+        }
+
+
+        public Patient GetPatientByRG (string RG)
+        {
+            return A1CContext.MySql.DB.Sql(@" SELECT 
+
+                                                * FROM 
+
+                                                Patient Patient
+
+                                                WHERE Patient.RG = @0", RG).QuerySingle<Patient>();
 
         }
 
