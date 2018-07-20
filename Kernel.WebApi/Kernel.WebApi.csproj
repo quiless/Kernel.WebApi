@@ -287,6 +287,8 @@
     <Compile Include="Controllers\SecurityController.cs" />
     <Compile Include="Entities\AuthenticationResult.cs" />
     <Compile Include="Entities\EntityBase.cs" />
+    <Compile Include="Entities\MedicalResult.cs" />
+    <Compile Include="Entities\MedicalResultUserPermission.cs" />
     <Compile Include="Entities\Patient.cs" />
     <Compile Include="Entities\UserInfo.cs" />
     <Compile Include="Exceptions\CommonValidationException.cs" />

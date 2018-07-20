@@ -33,7 +33,7 @@ namespace Kernel.WebApi.Controllers
 
         #region UserInfo
 
-       
+
 
         [HttpPost]
         public IHttpActionResult GetUserInfoPersonLogged()
@@ -73,6 +73,8 @@ namespace Kernel.WebApi.Controllers
                 return this.CoreBusinessRules.GetPatientByRG(RG);
             });
         }
+
+
         #endregion
 
         #region ClassVideoStream
@@ -116,6 +118,30 @@ namespace Kernel.WebApi.Controllers
             }
         }
 
+        #endregion
+
+        #region MedicalResult
+
+
+        [HttpPost]
+        public IHttpActionResult SaveMedicalResult(MedicalResult entity)
+        {
+            return ApiResult<MedicalResult>(() =>
+            {
+                var PersonIdRequester = ApplicationContext.Current.GetPersonIdUserAuthenticated();
+                return this.CoreBusinessRules.SaveMedicalResult(entity, PersonIdRequester);
+            });
+        }
+
+        [HttpPost]
+        public IHttpActionResult GetMedicalResults()
+        {
+            return ApiResult<IList<MedicalResult>>(() =>
+            {
+                var PersonIdRequester = ApplicationContext.Current.GetPersonIdUserAuthenticated();
+                return this.CoreBusinessRules.GetMedicalResults(PersonIdRequester);
+            });
+        }
         #endregion
     }
 }

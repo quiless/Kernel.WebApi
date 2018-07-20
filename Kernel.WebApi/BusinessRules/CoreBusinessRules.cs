@@ -119,5 +119,56 @@ namespace Kernel.WebApi.BusinessRules
         }
 
         #endregion
+
+        #region MedicalResult 
+
+        public MedicalResult SaveMedicalResult (MedicalResult Entity, int PersonIdRequester)
+        {
+            using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required))
+            {
+
+                Entity.ExecuteValidation();
+
+                Entity.CreateDate = DateTime.Now;
+
+                MedicalResultUserPermission MedicalResultUserPermission = new MedicalResultUserPermission();
+                IList<MedicalResultUserPermission> ListMedicalResultUserPermission = new List<MedicalResultUserPermission>();
+       
+
+                MedicalResultUserPermission.MedicalResultId = this.Provider.SaveMedicalResult(Entity);
+                MedicalResultUserPermission.UserInfoId = PersonIdRequester;
+                ListMedicalResultUserPermission.Add(MedicalResultUserPermission);
+
+                this.SetMedicalResultUserPermissions(ListMedicalResultUserPermission);
+
+
+
+
+                scope.Complete();
+            }
+
+            return Entity;
+        }
+
+        public void SetMedicalResultUserPermissions(IList<MedicalResultUserPermission> MedicalResultUserPermissions)
+        {
+
+            if (MedicalResultUserPermissions.Count() > 0)
+            {
+                foreach(var medicalResult in MedicalResultUserPermissions)
+                {
+                    
+                    this.Provider.SetMedicalResultUserPermission(medicalResult);
+                }
+            }
+
+        }
+
+        public IList<MedicalResult> GetMedicalResults(int PersonIdRequester)
+        {
+            return this.Provider.GetMedicalResults(PersonIdRequester);
+        }
+
+        #endregion
     }
 }

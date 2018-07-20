@@ -87,7 +87,7 @@ namespace Kernel.WebApi.Providers
                                                 WHERE Patient.Email = @0", Email).QuerySingle<bool>();
         }
 
-        public bool VerifyPatientByRG (string Email)
+        public bool VerifyPatientByRG(string Email)
         {
             return A1CContext.MySql.DB.Sql(@" SELECT 
 
@@ -116,7 +116,7 @@ namespace Kernel.WebApi.Providers
         }
 
 
-        public Patient GetPatientByRG (string RG)
+        public Patient GetPatientByRG(string RG)
         {
             return A1CContext.MySql.DB.Sql(@" SELECT 
 
@@ -130,8 +130,55 @@ namespace Kernel.WebApi.Providers
 
         #endregion
 
+        #region MedicalResult
+
+        public int SaveMedicalResult(MedicalResult Entity)
+        {
+            return A1CContext.MySql.DB.Insert("MedicalResult")
+                                             .Column("PatientId", Entity.PatientId)
+                                             .Column("CreateDate", Entity.CreateDate)
+                                             .Column("RepeatDays", Entity.RepeatDays)
+                                             .Column("MediumGlycogen", Entity.MediumGlycogen)
+                                             .Column("PercentGlycogen", Entity.PercentGlycogen)
+                                             .Column("IsDeleted", 0)
+                                             .ExecuteReturnLastId<int>();
+
+        }
+
+        public int SetMedicalResultUserPermission(MedicalResultUserPermission Entity)
+        {
+            return A1CContext.MySql.DB.Insert("MedicalResultUserPermission")
+                                             .Column("MedicalResultId", Entity.MedicalResultId)
+                                             .Column("UserInfoId", Entity.UserInfoId).Execute();
+        }
+
+        public IList<MedicalResult> GetMedicalResults(int PersonIdRequester)
+        {
+            return A1CContext.MySql.DB.Sql(@" SELECT 
+
+                                                MedicalResult.Id,
+                                                MedicalResult.PatientId,
+                                                CONVERT(VARCHAR,CreateDate,103) + ' ' +  CONVERT(VARCHAR,CreateDate,108) as Data,
+                                                MedicalResult.RepeatDays,
+                                                MedicalResult.MediumGlycogen,
+                                                MedicalResult.PercentGlycogen,
+                                                'Patient_Name'  = Patient.Name,
+                                                'Patient_RG'  = Patient.RG 
+
+                                                FROM MedicalResult MedicalResult
+
+                                                LEFT JOIN MedicalResultUserPermission MedicalResultUserPermission
+                                                ON MedicalResultUserPermission.MedicalResultId = MedicalResult.Id
+
+                                                LEFT JOIN Patient Patient
+                                                ON Patient.Id = MedicalResult.PatientId
+
+                                                WHERE   (MedicalResult.PatientId = @0  OR MedicalResultUserPermission.UserInfoId = @0)", PersonIdRequester).QueryMany<MedicalResult>();
+        }
+
+
+        #endregion
+
+
     }
-
-
-
 }
