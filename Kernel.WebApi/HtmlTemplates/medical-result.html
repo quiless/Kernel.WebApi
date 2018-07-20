@@ -1,0 +1,194 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+	<meta charset="utf-8" />
+    <style>
+        body{
+            padding:20px;
+            font-family:Verdana;
+        }
+
+        
+.rangeBlock {
+  margin-left: 30px;
+}
+
+.red {
+  background-color: red !important;
+  border-color: black !important;
+  height:37.5%;
+}
+
+.green {
+  background-color: green !important;
+  border-color: black !important;
+  height: 42.5%;
+}
+
+.yellow {
+  background-color: yellow !important;
+  border-color: black !important;
+  height: 20.00%;
+}
+
+.rangeGraph {
+  border: 1rem !important;
+  border-color: black !important;
+  height: 100%;
+}
+
+.legenda-item {
+  text-align: left;
+  font-size: 14px;
+  font-weight: 100;
+
+}
+.legenda-item span{
+  margin-right: 5px;
+  display: inline-block;
+  width: 20px;
+  height: 13px;
+}
+
+.min{
+      position: relative;
+    /* bottom: 0px; */
+    /* right: -50px; */
+    left: -45px;
+    top: 70%;
+    font-size: 13px;
+}
+
+.max{
+  position: relative;
+  font-size: 12px;
+  left: -45px;
+  top: -5px;
+  text-align: left;
+}
+
+.pointer{
+  position: relative;
+  left: 100%;
+  width: 145%;
+  text-align: left;
+  font-size: 20px;
+  top : -100%;
+}
+
+.pointer span {
+  display: inline-flex;
+}
+.pointer div{
+  font-size: 14px;
+  font-weight: 100;
+  padding-left: 13px;
+}
+
+.f-left{
+    float:left;
+}
+.f-right{
+    float:right;
+}
+.s-15{
+    width:15%;
+}
+.s-25{
+    width:25%;
+}
+.s-30{
+    width:30%;
+}
+.clear{
+    clear:both;
+}
+
+.highlight{
+        text-align: center;
+    background-color: yellow;
+    padding: 3px;
+    border-radius: 4px;
+}
+
+    </style>
+</head>
+<body>
+    
+    <div>
+        <table style="width:100%;border:1px solid #000;">
+            <tr style="">
+                <td colspan="5" style="text-align:center;border-bottom:1px solid #000">
+                    <h3 style="text-align:center;font-size:24px;padding:5px;margin:0px;">AC1 NOW - RESUMO DO EXAME</h3>
+                    <h4 style="padding:5px;margin:0px;">Data do Exame: 20/07/2018 19:57</h4>
+                </td>
+            </tr>
+            <tr>
+                <td>Nome do paciente: Kelvin Cleto Gonçalves</td>
+                <td>RG: 35.449.222-1</td>
+            </tr>
+            <tr>
+                <td>E-mail: kcleto@outlook.com</td>
+                <td>Celular: +55 11 99677 8823</td>
+            </tr>
+            <tr>
+                <td>Data Nasc.: 04/05/1992</td>
+                <td>Sexo: Masculino</td>
+            </tr>
+        </table>
+    </div>
+    <div>
+        <p style="text-align:center;">Glicose Estimada média: <b style="font-size:18px;">105.3 mg/dl</b></p>
+    </div>
+    <div class="clear"></div>
+    <br />
+    <div class="f-left s-15" style="height:200px;margin-left:60px;">
+        <div class="rangeGraph">
+            <div class="red rangeBlock">
+                <div class="max">8.0% a<br> 13%</div>
+            </div>
+            <div class="yellow rangeBlock">
+                <div class="max">6.5%</div>
+            </div>
+            <div class="green rangeBlock">
+                <div class="max">5.7%</div>
+                <div class="min">4.0%</div>
+            </div>
+
+            <div class="pointer">
+                <img src="https://png.icons8.com/windows/1600/long-arrow-right.png" style="transform: rotate(180deg);position: relative;top: -11px;" width="50" height="50" /><span style="display: block;position: relative;top: -53px;left: 40px;"> &nbsp; A1C:5.4%</span>
+            </div>
+            
+        </div>
+    </div>
+    <div class="f-right s-25">
+        <div style="float: left;margin-left: 30px;">
+            <div class="legenda-item">
+                <span style="background-color: red"></span>Diabetes
+            </div>
+            <div class="legenda-item">
+                <span style="background-color: yellow"></span>Pré-Diabetes
+            </div>
+            <div class="legenda-item">
+                <span style="background-color: green"></span>Normal
+            </div>
+        </div>
+    </div>
+    <div class="clear"></div>
+    <br />
+    <br />
+    <p style="text-align:center;" class="highlight">Atenção: Este reporte de resultados só terá valor diagnóstico se assinado por um profissional de saúde qualificado.</p>
+    <div class="clear"></div>
+    <br />
+    <div style="text-align:justify;">
+        <p>O valor de Hemoglobina Glicada reportada acima é uma transcrição do valor obtido pelo sistema A1cNow* e reportado em xx/xx/xx as hh:mm. Foi sugerido pelo profissional de saude que este exame (Hemoglobina Glicada) se repita em data próxima a XX/XX/XX. Deseja adicionar este compromisso ao calendário?</p>
+        <br />
+        <p>* A1Cnow é um sistema patenteado para quantificação de Hemoglobina Glicada em sangue capilar. O sistema é calibrado de acordo com padrões internacionais (IFCC e NGSP).</p>
+        <br />
+        <p>Os valores de referência da hemoglobina glicada são diferentes se o paciente é ou não diabético. Para alguém que não seja diabético os níveis normais podem variar de 4,5 a 5,6%. Um resultado entre 5,7 e 6,4% é considerado como pré-diabetes. Níveis superiores a 6,5%, obtidos em dois testes separados, indicam diabetes mellitius. Para pessoas que sejam diabéticas, níveis de hemoglobina Glicada entre 6,5 e 7,0% são considerados como um indicativo de um bom controle da doença. Fonte: ANAD</p>
+    </div>
+   
+</body>
+</html>
+    

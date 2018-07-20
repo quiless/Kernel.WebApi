@@ -4,8 +4,10 @@ using Kernel.WebApi.BusinessRules;
 using Kernel.WebApi.Common;
 using Kernel.WebApi.Entities;
 using Kernel.WebApi.Models;
+using OpenHtmlToPdf;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -32,9 +34,7 @@ namespace Kernel.WebApi.Controllers
         #endregion
 
         #region UserInfo
-
-       
-
+        
         [HttpPost]
         public IHttpActionResult GetUserInfoPersonLogged()
         {
@@ -43,6 +43,7 @@ namespace Kernel.WebApi.Controllers
                 return this.CoreBusinessRules.GetUserInfoPersonLogged(ApplicationContext.Current.GetPersonIdUserAuthenticated());
             });
         }
+
 
         [HttpPost]
         public IHttpActionResult SavePatient(Patient entity)
@@ -73,6 +74,33 @@ namespace Kernel.WebApi.Controllers
                 return this.CoreBusinessRules.GetPatientByRG(RG);
             });
         }
+        #endregion
+
+        #region PDF
+
+        [HttpPost]
+        [AllowAnonymous]
+        public IHttpActionResult GenerateMedicalResultPDF()
+        {
+            return ApiResult<bool>(() =>
+            {
+                string html = System.IO.File.ReadAllText(ConfigurationManager.AppSettings["HtmlTemplatesPath"] + @"\medical-result.html");
+                //var text1 = "";
+                //var text2 = "";
+                //var text3 = "";
+                //var pdf = TheArtOfDev.HtmlRenderer.PdfSharp.PdfGenerator.GeneratePdf(html, PdfSharp.PageSize.A4);
+                //pdf.Save(@"C:\GitVS\"+Guid.NewGuid().ToString()+".pdf");
+
+                var pdf = Pdf.From(html)
+                            .OfSize(PaperSize.A4)
+                            .WithTitle("Teste")                           
+                            .Content();
+                File.WriteAllBytes(@"C:\GitVS\" + Guid.NewGuid().ToString() + ".pdf", pdf);
+                return true;
+            });
+        }
+
+
         #endregion
 
         #region ClassVideoStream
