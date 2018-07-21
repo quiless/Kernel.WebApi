@@ -154,16 +154,17 @@ namespace Kernel.WebApi.Providers
 
         public IList<MedicalResult> GetMedicalResults(int PersonIdRequester)
         {
-            return A1CContext.MySql.DB.Sql(@" SELECT 
-
+            return A1CContext.MySql.DB.Sql(@"SELECT
                                                 MedicalResult.Id,
                                                 MedicalResult.PatientId,
-                                                CONVERT(VARCHAR,CreateDate,103) + ' ' +  CONVERT(VARCHAR,CreateDate,108) as Data,
+                                                MedicalResult.CreateDate,
                                                 MedicalResult.RepeatDays,
                                                 MedicalResult.MediumGlycogen,
                                                 MedicalResult.PercentGlycogen,
                                                 'Patient_Name'  = Patient.Name,
-                                                'Patient_RG'  = Patient.RG 
+                                                'Patient_RG'  = Patient.RG,
+                                                'Patient_PhoneNumber' = Patient.PhoneNumber,
+                                                'Patient_Email' = Patient.Email
 
                                                 FROM MedicalResult MedicalResult
 
