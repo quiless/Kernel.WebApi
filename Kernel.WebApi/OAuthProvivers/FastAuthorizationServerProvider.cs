@@ -34,7 +34,6 @@ namespace Kernel.WebApi.OAuthProvivers
             if (authResult == null || authResult.Result != Entities.ResultType.Success)
             {
                 context.SetError("Usuário e/ou senha são inválidos!");
-
                 return;
             }
 
