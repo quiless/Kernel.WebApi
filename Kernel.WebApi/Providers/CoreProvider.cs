@@ -87,6 +87,7 @@ namespace Kernel.WebApi.Providers
             return A1CContext.MySql.DB.Insert("MedicalResult")
                                              .Column("PatientId", Entity.PatientId)
                                              .Column("CreateDate", Entity.CreateDate)
+                                             .Column("ResultDate", Entity.ResultDate)
                                              .Column("RepeatDays", Entity.RepeatDays)
                                              .Column("MediumGlycogen", Entity.MediumGlycogen)
                                              .Column("PercentGlycogen", Entity.PercentGlycogen)
@@ -108,6 +109,7 @@ namespace Kernel.WebApi.Providers
                                                 MedicalResult.Id,
                                                 MedicalResult.PatientId,
                                                 MedicalResult.CreateDate,
+                                                MedicalResult.ResultDate,
                                                 MedicalResult.RepeatDays,
                                                 MedicalResult.MediumGlycogen,
                                                 MedicalResult.PercentGlycogen,
@@ -296,11 +298,11 @@ namespace Kernel.WebApi.Providers
 		                                            THEN Texto1.TextConfig
 		                                            ELSE 'O valor de Hemoglobina Glicada reportada acima é uma 
 			                                              transcrição do valor obtido pelo sistema A1cNow* e reportado 
-			                                              em ' + CONVERT(VARCHAR,MedicalResult.CreateDate,103) +' as ' + 
-			                                              CONVERT(VARCHAR(5),MedicalResult.CreateDate,108) + '. Foi 
+			                                              em ' + CONVERT(VARCHAR,MedicalResult.ResultDate,103) +' as ' + 
+			                                              CONVERT(VARCHAR(5),MedicalResult.ResultDate,108) + '. Foi 
 			                                              sugerido pelo profissional de saude  que este exame 
 			                                              (Hemoglobina Glicada) se repita em data próxima ' + 
-			                                              CONVERT(VARCHAR, DATEADD(DAY,MedicalResult.RepeatDays,MedicalResult.CreateDate),103) +
+			                                              CONVERT(VARCHAR, DATEADD(DAY,MedicalResult.RepeatDays,MedicalResult.ResultDate),103) +
 			                                              ' Deseja adicionar este compromisso ao calendário?' END
 																                                            AS 'Texto1',
 	                                            CASE WHEN (Texto2.Id IS NOT NULL)
@@ -318,7 +320,7 @@ namespace Kernel.WebApi.Providers
 			                                              hemoglobina Glicada entre 6,5 e 7,0% são considerados como um indicativo de 
 			                                              um bom controle da doença. Fonte: ANAD' END
 																                                            AS 'Texto3',
-	                                           CONVERT(VARCHAR,MedicalResult.CreateDate,103) + ' ' + CONVERT(VARCHAR,MedicalResult.CreateDate,108) 				
+	                                           CONVERT(VARCHAR,MedicalResult.ResultDate,103) + ' ' + CONVERT(VARCHAR,MedicalResult.ResultDate,108) 				
 																                                            AS 'DataExame'
 
 	                                            FROM MedicalResult MedicalResult

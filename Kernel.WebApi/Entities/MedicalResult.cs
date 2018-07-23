@@ -15,6 +15,7 @@ namespace Kernel.WebApi.Entities
         public int Id { get; set; }
         public int PatientId { get; set; }
         public DateTime CreateDate { get; set; }
+        public DateTime ResultDate { get; set; }
         public int RepeatDays { get; set; }
         public decimal MediumGlycogen { get; set; }
         public decimal PercentGlycogen { get; set; }
@@ -31,6 +32,17 @@ namespace Kernel.WebApi.Entities
             if (IsNullOrEmptyOrEqualZero(this.PatientId))
             {
                 errorResults.AddResult(formatMessage(tag, "PatientId", " Necessário informar o paciente"));
+            }
+
+            if (IsNullOrEmptyOrEqualZero(this.ResultDate))
+            {
+                errorResults.AddResult(formatMessage(tag, "ResultDate", "Informe a data do exame"));
+            }
+
+
+            if (IsNullOrEmptyOrEqualZero(this.PercentGlycogen))
+            {
+                errorResults.AddResult(formatMessage(tag, "PercentGlycogen", "Informe o resultado"));
             }
         }
 
