@@ -47,10 +47,10 @@ namespace Kernel.WebApi.Controllers
         [HttpPost]
         public IHttpActionResult SavePatient(Patient entity)
         {
-            return ApiResult<bool>(() =>
+            return ApiResult<int>(() =>
             {
-                this.CoreBusinessRules.SavePatient(entity);
-                return true;
+               return this.CoreBusinessRules.SavePatient(entity);
+             
             });
         }
 
@@ -142,6 +142,68 @@ namespace Kernel.WebApi.Controllers
                 return this.CoreBusinessRules.GetMedicalResults(PersonIdRequester);
             });
         }
+        #endregion
+
+        #region Patient 
+
+        [HttpPost]
+        public IHttpActionResult ImportMedicalResults([FromBody] string RG)
+        {
+            return ApiResult<bool>(() =>
+            {
+                var PersonIdRequester = ApplicationContext.Current.GetPersonIdUserAuthenticated();
+
+                return this.CoreBusinessRules.ImportMedicalResults(PersonIdRequester, RG);
+            });
+        }
+
+        [HttpPost]
+        public IHttpActionResult SaveTextConfig(IList<UserInfoTextConfig> lstTextConfigs)
+        {
+            return ApiResult<bool>(() =>
+            {
+                var PersonIdRequester = ApplicationContext.Current.GetPersonIdUserAuthenticated();
+
+
+                return CoreBusinessRules.SaveTextConfig(lstTextConfigs, PersonIdRequester);
+            });
+        }
+
+        [HttpPost]
+        public IHttpActionResult ResetTextConfig()
+        {
+            return ApiResult<bool>(() =>
+            {
+                var PersonIdRequester = ApplicationContext.Current.GetPersonIdUserAuthenticated();
+
+
+                return CoreBusinessRules.ResetTextConfig(PersonIdRequester);
+            });
+        }
+
+        [HttpPost]
+        public IHttpActionResult GetUserTextConfig()
+        {
+            return ApiResult<IList<UserInfoTextConfig>>(() =>
+            {
+                var PersonIdRequester = ApplicationContext.Current.GetPersonIdUserAuthenticated();
+                return CoreBusinessRules.GetUserTextConfig(PersonIdRequester);
+            });
+        }
+
+        #endregion
+
+        #region PDF
+        [HttpPost]
+        public IHttpActionResult GetPdfData([FromBody] int MedicalResultId)
+        {
+            return ApiResult<string>(() =>
+            {
+                var PersonIdRequester = ApplicationContext.Current.GetPersonIdUserAuthenticated();
+                return this.CoreBusinessRules.GetPdfData(PersonIdRequester, MedicalResultId);
+            });
+        }
+
         #endregion
     }
 }

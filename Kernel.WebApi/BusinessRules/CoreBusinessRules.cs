@@ -76,7 +76,7 @@ namespace Kernel.WebApi.BusinessRules
                 entity.PatientId = this.SavePatient(Patient);
 
                 this.Provider.SaveUserInfo(entity);
-                
+
                 scope.Complete();
             }
 
@@ -94,35 +94,13 @@ namespace Kernel.WebApi.BusinessRules
             return this.Provider.VerifyPatientByRG(RG);
         }
 
-        public int SavePatient(Patient entity)
-        {
-            var HasPatientSameRG = this.VerifyPatientByRG(entity.RG);
-            var HasPatientSameEmail = this.VerifyPatientByEmail(entity.Email);
 
-            if (HasPatientSameRG)
-            {
-                throw new CommonValidationException("O RG informado já possuí cadastro");
-            }
-
-            if (HasPatientSameEmail)
-            {
-                throw new CommonValidationException("O Email informado já possuí cadastro");
-            }
-
-            return this.Provider.SavePatient(entity);
-
-        }
-
-        public Patient GetPatientByRG(string RG)
-        {
-            return this.Provider.GetPatientByRG(RG);
-        }
 
         #endregion
 
         #region MedicalResult 
 
-        public MedicalResult SaveMedicalResult (MedicalResult Entity, int PersonIdRequester)
+        public MedicalResult SaveMedicalResult(MedicalResult Entity, int PersonIdRequester)
         {
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required))
             {
@@ -133,7 +111,7 @@ namespace Kernel.WebApi.BusinessRules
 
                 MedicalResultUserPermission MedicalResultUserPermission = new MedicalResultUserPermission();
                 IList<MedicalResultUserPermission> ListMedicalResultUserPermission = new List<MedicalResultUserPermission>();
-       
+
 
                 MedicalResultUserPermission.MedicalResultId = this.Provider.SaveMedicalResult(Entity);
                 MedicalResultUserPermission.UserInfoId = PersonIdRequester;
@@ -155,9 +133,9 @@ namespace Kernel.WebApi.BusinessRules
 
             if (MedicalResultUserPermissions.Count() > 0)
             {
-                foreach(var medicalResult in MedicalResultUserPermissions)
+                foreach (var medicalResult in MedicalResultUserPermissions)
                 {
-                    
+
                     this.Provider.SetMedicalResultUserPermission(medicalResult);
                 }
             }
@@ -167,6 +145,108 @@ namespace Kernel.WebApi.BusinessRules
         public IList<MedicalResult> GetMedicalResults(int PersonIdRequester)
         {
             return this.Provider.GetMedicalResults(PersonIdRequester);
+        }
+
+        #endregion
+
+        #region Patient
+
+        public int SavePatient(Patient entity)
+        {
+            var HasPatientSameRG = this.VerifyPatientByRG(entity.RG);
+            var HasPatientSameEmail = this.VerifyPatientByEmail(entity.Email);
+            entity.ExecuteValidation();
+
+            if (HasPatientSameRG)
+            {
+                throw new CommonValidationException("O RG informado já possuí cadastro");
+            }
+
+            if (HasPatientSameEmail)
+            {
+                throw new CommonValidationException("O Email informado já possuí cadastro");
+            }
+
+            return this.Provider.SavePatient(entity);
+
+        }
+
+        public Patient GetPatientByRG(string RG)
+        {
+            return this.Provider.GetPatientByRG(RG);
+        }
+
+        public bool ImportMedicalResults(int PersonIdRequester, string RG)
+        {
+
+            this.Provider.ImportMedicalResults(PersonIdRequester, RG);
+            return true;
+        }
+
+        #endregion
+
+        #region TextConfig
+
+        public bool SaveTextConfig(IList<UserInfoTextConfig> lstTextConfigs, int PersonIdRequester)
+        {
+            using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required))
+            {
+                foreach(var textConfig in lstTextConfigs)
+                {
+                    textConfig.UserInfoId = PersonIdRequester;
+                    if (textConfig.Id > 0)
+                    {
+                        this.Provider.UpdateTextConfig(textConfig);
+                    } else
+                    {
+                        this.Provider.InsertTextConfig(textConfig);
+                    }
+                }
+
+                scope.Complete();
+            }
+
+            return true;
+            
+        }
+
+        public bool ResetTextConfig(int PersonIdRequester)
+        {
+            this.Provider.ResetTextConfig(PersonIdRequester);
+            return true;
+        }
+
+        public IList<UserInfoTextConfig> GetUserTextConfig(int PersonIdRequester)
+        {
+            return this.Provider.GetUserTextConfig(PersonIdRequester);
+        }
+
+        #endregion
+
+        #region PDF
+
+        public string GetPdfData(int PersonIdRequester, int MedicalResultId)
+        {
+            var MedicalExaminationResult = this.Provider.GetPdfData(PersonIdRequester, MedicalResultId);
+
+            string html_content = System.IO.File.ReadAllText(ConfigurationManager.AppSettings["HTMLTemplatesPath"] + @"\medical-result.html");
+
+            html_content = html_content.Replace("[Nome]", MedicalExaminationResult.Nome);
+            html_content = html_content.Replace("[Email]", MedicalExaminationResult.Email);
+            html_content = html_content.Replace("[DataNascimento]", MedicalExaminationResult.DataNascimento);
+            html_content = html_content.Replace("[RG]", MedicalExaminationResult.RG);
+            html_content = html_content.Replace("[Celular]", MedicalExaminationResult.Celular);
+            html_content = html_content.Replace("[Sexo]", MedicalExaminationResult.Sexo);
+            html_content = html_content.Replace("[GlicoseMedia]", MedicalExaminationResult.GlicoseMedia);
+            html_content = html_content.Replace("[GlicosePercentual]", MedicalExaminationResult.GlicosePercentual);
+            html_content = html_content.Replace("[Texto1]", MedicalExaminationResult.Texto1);
+            html_content = html_content.Replace("[Texto2]", MedicalExaminationResult.Texto2);
+            html_content = html_content.Replace("[Texto3]", MedicalExaminationResult.Texto3);
+
+            return html_content;
+
+
+
         }
 
         #endregion

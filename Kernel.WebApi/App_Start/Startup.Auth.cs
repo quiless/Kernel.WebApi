@@ -22,7 +22,7 @@ namespace Kernel.WebApi
             {
                 AllowInsecureHttp = true,
                 TokenEndpointPath = new PathString("/token"),
-                AccessTokenExpireTimeSpan = TimeSpan.FromHours(1),
+                AccessTokenExpireTimeSpan = TimeSpan.FromHours(2400),
                 Provider = new FastAuthorizationServerProvider()
             };
 

@@ -312,6 +312,7 @@
     <Compile Include="Entities\MedicalResultUserPermission.cs" />
     <Compile Include="Entities\Patient.cs" />
     <Compile Include="Entities\UserInfo.cs" />
+    <Compile Include="Entities\UserInfoTextConfig.cs" />
     <Compile Include="Exceptions\CommonValidationException.cs" />
     <Compile Include="Models\UploadModel.cs" />
     <Compile Include="OAuthProvivers\FastAuthorizationServerProvider.cs" />

@@ -10,9 +10,9 @@ namespace Kernel.WebApi.Entities
     [HasSelfValidation]
     public class Patient : EntityBase<Patient>
     {
-        public int Id { get; set; }
+        public int Id { get; set; }         
         public string Email { get; set; }
-        public bool? Gender { get; set; }
+        public int? Gender { get; set; }
         public DateTime? Birthdate { get; set; }
         public string Name { get; set; }
         public string RG { get; set; }
