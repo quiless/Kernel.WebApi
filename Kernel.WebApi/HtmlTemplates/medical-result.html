@@ -2,125 +2,135 @@
 <html>
 <head>
     <title></title>
-	<meta charset="utf-8" />
+    <meta charset="utf-8" />
     <style>
-        body{
-            padding:20px;
-            font-family:Verdana;
+        body {
+            padding: 20px;
+            font-family: Verdana;
+          
         }
 
-        
-.rangeBlock {
-  margin-left: 30px;
-}
 
-.red {
-  background-color: red !important;
-  border-color: black !important;
-  height:37.5%;
-}
+        .rangeBlock {
+            margin-left: 30px;
+        }
 
-.green {
-  background-color: green !important;
-  border-color: black !important;
-  height: 42.5%;
-}
+        .red {
+            background-color: red !important;
+            border-color: black !important;
+            height: 37.5%;
+        }
 
-.yellow {
-  background-color: yellow !important;
-  border-color: black !important;
-  height: 20.00%;
-}
+        .green {
+            background-color: green !important;
+            border-color: black !important;
+            height: 42.5%;
+        }
 
-.rangeGraph {
-  border: 1rem !important;
-  border-color: black !important;
-  height: 100%;
-}
+        .yellow {
+            background-color: yellow !important;
+            border-color: black !important;
+            height: 20.00%;
+        }
 
-.legenda-item {
-  text-align: left;
-  font-size: 14px;
-  font-weight: 100;
+        .rangeGraph {
+            border: 1rem !important;
+            border-color: black !important;
+            height: 100%;
+        }
 
-}
-.legenda-item span{
-  margin-right: 5px;
-  display: inline-block;
-  width: 20px;
-  height: 13px;
-}
+        .legenda-item {
+            text-align: left;
+            font-size: 14px;
+            font-weight: 100;
+        }
 
-.min{
-      position: relative;
-    /* bottom: 0px; */
-    /* right: -50px; */
-    left: -45px;
-    top: 70%;
-    font-size: 13px;
-}
+            .legenda-item span {
+                margin-right: 5px;
+                display: inline-block;
+                width: 20px;
+                height: 13px;
+            }
 
-.max{
-  position: relative;
-  font-size: 12px;
-  left: -45px;
-  top: -5px;
-  text-align: left;
-}
+        .min {
+            position: relative;
+            /* bottom: 0px; */
+            /* right: -50px; */
+            left: -45px;
+            top: 70%;
+            font-size: 13px;
+        }
 
-.pointer{
-  position: relative;
-  left: 100%;
-  width: 145%;
-  text-align: left;
-  font-size: 20px;
-  top : -100%;
-}
+        .max {
+            position: relative;
+            font-size: 12px;
+            left: -45px;
+            top: -5px;
+            text-align: left;
+        }
 
-.pointer span {
-  display: inline-flex;
-}
-.pointer div{
-  font-size: 14px;
-  font-weight: 100;
-  padding-left: 13px;
-}
+        .pointer {
+            position: relative;
+            left: 100%;
+            width: 145%;
+            text-align: left;
+            font-size: 20px;
+            top: -100%;
+        }
 
-.f-left{
-    float:left;
-}
-.f-right{
-    float:right;
-}
-.s-15{
-    width:15%;
-}
-.s-25{
-    width:25%;
-}
-.s-30{
-    width:30%;
-}
-.clear{
-    clear:both;
-}
+            .pointer span {
+                display: inline-flex;
+            }
 
-.highlight{
-        text-align: center;
-    background-color: yellow;
-    padding: 3px;
-    border-radius: 4px;
-}
+            .pointer div {
+                font-size: 14px;
+                font-weight: 100;
+                padding-left: 13px;
+            }
 
+        .f-left {
+            float: left;
+        }
+
+        .f-right {
+            float: right;
+        }
+
+        .s-15 {
+            width: 15%;
+        }
+
+        .s-25 {
+            width: 25%;
+        }
+
+        .s-50 {
+            width: 50%;
+        }
+
+        .s-30 {
+            width: 30%;
+        }
+
+        .clear {
+            clear: both;
+        }
+
+        .highlight {
+            text-align: center;
+            background-color: yellow;
+            padding: 3px;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
-    
+
     <div>
         <table style="width:100%;border:1px solid #000;">
             <tr style="">
                 <td colspan="5" style="text-align:center;border-bottom:1px solid #000">
-                    <h3 style="text-align:center;font-size:24px;padding:5px;margin:0px;">AC1 NOW - RESUMO DO EXAME</h3>
+                    <h3 style="text-align:center;font-size:24px;padding:5px;margin:0px;">A1C NOW - RESUMO DO EXAME</h3>
                     <h4 style="padding:5px;margin:0px;">Data do Exame: [DataExame]</h4>
                 </td>
             </tr>
@@ -138,33 +148,29 @@
             </tr>
         </table>
     </div>
-    <div>
-        <p style="text-align:center;">Glicose Estimada média: <b style="font-size:18px;">[GlicoseMedia] mg/dl</b></p>
-    </div>
+
     <div class="clear"></div>
     <br />
     <div class="f-left s-15" style="height:200px;margin-left:60px;">
         <div class="rangeGraph">
             <div class="red rangeBlock">
-                <div class="max">8.0% a<br> 13%</div>
             </div>
             <div class="yellow rangeBlock">
-                <div class="max">6.5%</div>
             </div>
             <div class="green rangeBlock">
-                <div class="max">5.7%</div>
-                <div class="min">4.0%</div>
             </div>
 
             <div class="pointer">
-                <img src="https://png.icons8.com/windows/1600/long-arrow-right.png" style="transform: rotate(180deg);position: relative;top: 100px;" width="50" height="50" /><span style="display: block;position: relative;top: 100px;left: 40px;"> &nbsp; A1C:[GlicosePercentual]%</span>
+                <img src="https://png.icons8.com/windows/1600/long-arrow-right.png" style="transform: rotate(180deg);position: relative;top: 100px;" width="50" height="50" /><span style="display: block;position: relative;top: 100px;left: 40px;"> &nbsp; A1c:[GlicosePercentual]%</span>
             </div>
-            
+
         </div>
     </div>
     <div class="f-right s-25">
         <div style="float: left;margin-left: 30px;">
-            <div class="legenda-item">
+            <b> Referência </b>
+            <br />
+            <div class="legenda-item" style="margin-top:10px">
                 <span style="background-color: red"></span>Diabetes
             </div>
             <div class="legenda-item">
@@ -175,6 +181,14 @@
             </div>
         </div>
     </div>
+    <div class="f-right s-30">
+        <p style="text-align:center;">
+            Glicose Estimada média:
+            <br />
+            <b style="font-size:18px;">[GlicoseMedia] mg/dl</b>
+        </p>
+    </div>
+   
     <div class="clear"></div>
     <br />
     <br />
@@ -188,7 +202,6 @@
         <br />
         <p>[Texto3]</p>
     </div>
-   
+
 </body>
 </html>
-    
