@@ -75,6 +75,7 @@ namespace Kernel.WebApi.BusinessRules
                 Patient.Name = entity.Name;
                 Patient.PhoneNumber = entity.PhoneNumber;
                 Patient.RG = entity.RG;
+                Patient.Gender = entity.Gender;
                 entity.PatientId = this.SavePatient(Patient);
 
                 this.Provider.SaveUserInfo(entity);
