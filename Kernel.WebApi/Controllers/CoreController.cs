@@ -14,9 +14,12 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
+using System.Net.Mail;
+using System.Configuration;
 
 namespace Kernel.WebApi.Controllers
 {
+    [Authorize]
     public class CoreController : ApiControllerBase
     {
         #region Constructor
@@ -56,6 +59,7 @@ namespace Kernel.WebApi.Controllers
 
 
         [HttpPost]
+        [AllowAnonymous]
         public IHttpActionResult SaveUserInfo(Entities.UserInfo entity)
         {
             return ApiResult<bool>(() =>
@@ -134,12 +138,23 @@ namespace Kernel.WebApi.Controllers
         }
 
         [HttpPost]
+        public IHttpActionResult SendMedicalResultSMSEmail(MedicalResult entity)
+        {
+            return ApiResult<bool>(() =>
+            {
+                var PersonIdRequester = ApplicationContext.Current.GetPersonIdUserAuthenticated();
+                return this.CoreBusinessRules.SendMedicalResultSMSEmail(entity, PersonIdRequester);
+            });
+        }
+
+        [HttpPost]
         public IHttpActionResult GetMedicalResults()
         {
             return ApiResult<IList<MedicalResult>>(() =>
             {
                 var PersonIdRequester = ApplicationContext.Current.GetPersonIdUserAuthenticated();
-                return this.CoreBusinessRules.GetMedicalResults(PersonIdRequester);
+                var result = this.CoreBusinessRules.GetMedicalResults(PersonIdRequester);
+                return result;
             });
         }
         #endregion
@@ -192,7 +207,7 @@ namespace Kernel.WebApi.Controllers
         }
 
         #endregion
-
+           
         #region PDF
         [HttpPost]
         public IHttpActionResult GetPdfData([FromBody] int MedicalResultId)
@@ -204,6 +219,15 @@ namespace Kernel.WebApi.Controllers
             });
         }
 
+        [HttpPost]
+        [AllowAnonymous]
+        public IHttpActionResult TestMethod()
+        {
+            return ApiResult<string>(() =>
+            {
+                return "ok";
+            });
+        }
         #endregion
     }
 }

@@ -15,7 +15,7 @@ namespace Kernel.WebApi.Providers
         public A1CContext()
             : base()
         {
-            this.DB = new DbContext().ConnectionString(ConfigurationManager.ConnectionStrings["A1C"].ConnectionString, new SqlServerProvider());
+            this.DB = new DbContext().ConnectionString(ConfigurationManager.ConnectionStrings["A1C"].ConnectionString, new MySqlProvider());
             this.DB.IgnoreIfAutoMapFails(true);
             this.DB.CommandTimeout(360);
         }

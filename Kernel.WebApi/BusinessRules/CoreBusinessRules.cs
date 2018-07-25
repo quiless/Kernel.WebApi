@@ -12,6 +12,8 @@ using Microsoft.Practices.EnterpriseLibrary.Validation;
 using Kernel.WebApi.Exceptions;
 using System.Transactions;
 using System.Data;
+using OpenHtmlToPdf;
+using System.Net.Mail;
 
 namespace Kernel.WebApi.BusinessRules
 {
@@ -100,33 +102,146 @@ namespace Kernel.WebApi.BusinessRules
 
         #region MedicalResult 
 
+        public bool SendMedicalResultSMSEmail(MedicalResult Entity, int PersonIdRequester)
+        {
+            var medicalResult = this.Provider.GetMedicalResult(Entity.Id);
+            var html = GetPdfData(PersonIdRequester, Entity.Id);
+
+            string pdfdir = ConfigurationManager.AppSettings["pdfs"];
+            var pdfPath = pdfdir + @"\" + medicalResult.Uid.ToString() + ".pdf";
+            if (!File.Exists(pdfPath))
+            {
+                if (!Directory.Exists(pdfdir))
+                    Directory.CreateDirectory(pdfdir);
+
+                var pdf = Pdf.From(html)
+                            .OfSize(PaperSize.A4)
+                            .WithTitle("AC1 NOW - RESUMO DO EXAME")
+                            .Content();
+
+
+                File.WriteAllBytes(pdfPath, pdf);
+            }
+            try
+            {
+                var userInfo = this.GetUserInfoPersonLogged(PersonIdRequester);
+                var patient = this.Provider.GetPatientById(Entity.PatientId);
+
+                SmtpClient client = new SmtpClient(ConfigurationManager.AppSettings["smtpHost"], Convert.ToInt32(ConfigurationManager.AppSettings["smtpPort"]));
+                client.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["email"], ConfigurationManager.AppSettings["password"]);
+                MailMessage message = new MailMessage();
+
+                MailAddress mailAddress = new MailAddress(ConfigurationManager.AppSettings["email"], "A1C Now +");
+
+                //Endereço do remetente
+                message.From = mailAddress;
+
+                MailAddress toMailAddres = new MailAddress(userInfo.Email);
+                message.To.Add(toMailAddres);
+                //Assunto
+                message.Subject = "AC1 Now - Resumo de Exame: " + patient.Name;
+
+                //Corpo do Email
+                message.Body = "";
+
+                //Anexos
+                Attachment attachment = new Attachment(pdfPath);
+                attachment.Name = Path.GetFileName(pdfPath);
+                attachment.ContentType = new System.Net.Mime.ContentType(MimeMapping.GetMimeMapping(attachment.Name));
+
+                message.Attachments.Add(attachment);
+                //Indica se o corpo é Html
+                message.IsBodyHtml = true;
+                //Envio de email
+                client.Send(message);
+            }
+            catch (Exception emailex)
+            { }
+
+            return true;
+
+        }
+
         public MedicalResult SaveMedicalResult(MedicalResult Entity, int PersonIdRequester)
         {
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required))
             {
 
                 Entity.ExecuteValidation();
-
                 Entity.CreateDate = DateTime.Now;
-
                 MedicalResultUserPermission MedicalResultUserPermission = new MedicalResultUserPermission();
                 IList<MedicalResultUserPermission> ListMedicalResultUserPermission = new List<MedicalResultUserPermission>();
 
+               
 
-                MedicalResultUserPermission.MedicalResultId = this.Provider.SaveMedicalResult(Entity);
+                Entity.Id = this.Provider.SaveMedicalResult(Entity);
+                MedicalResultUserPermission.MedicalResultId = Entity.Id;
                 MedicalResultUserPermission.UserInfoId = PersonIdRequester;
                 ListMedicalResultUserPermission.Add(MedicalResultUserPermission);
 
                 this.SetMedicalResultUserPermissions(ListMedicalResultUserPermission);
 
+                var html = GetPdfData(PersonIdRequester, Entity.Id);
+
+                string pdfdir = ConfigurationManager.AppSettings["pdfs"];
+                if (!Directory.Exists(pdfdir))
+                    Directory.CreateDirectory(pdfdir);
+
+                var pdf = Pdf.From(html)
+                            .OfSize(PaperSize.A4)
+                            .WithTitle("AC1 NOW - RESUMO DO EXAME")
+                            .Content();
+
+                var pdfPath = pdfdir + @"\" + Entity.Uid.ToString() + ".pdf";
+                File.WriteAllBytes(pdfPath, pdf);
 
 
+                if (Entity.SendEmailSMS)
+                {
+
+                    try
+                    {
+                        var userInfo = this.GetUserInfoPersonLogged(PersonIdRequester);
+                        var patient = this.Provider.GetPatientById(Entity.PatientId);
+
+                        SmtpClient client = new SmtpClient(ConfigurationManager.AppSettings["smtpHost"], Convert.ToInt32(ConfigurationManager.AppSettings["smtpPort"]));
+                        client.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["email"], ConfigurationManager.AppSettings["password"]);
+                        MailMessage message = new MailMessage();
+
+                        MailAddress mailAddress = new MailAddress(ConfigurationManager.AppSettings["email"], "A1C Now +");
+
+                        //Endereço do remetente
+                        message.From = mailAddress;
+
+                        MailAddress toMailAddres = new MailAddress(userInfo.Email);
+                        message.To.Add(toMailAddres);
+                        //Assunto
+                        message.Subject = "AC1 Now - Resumo de Exame: " + patient.Name;
+
+                        //Corpo do Email
+                        message.Body = "";
+
+                        //Anexos
+                        Attachment attachment = new Attachment(pdfPath);
+                        attachment.Name = Path.GetFileName(pdfPath);
+                        attachment.ContentType = new System.Net.Mime.ContentType(MimeMapping.GetMimeMapping(attachment.Name));
+
+                        message.Attachments.Add(attachment);
+                        //Indica se o corpo é Html
+                        message.IsBodyHtml = true;
+                        //Envio de email
+                        client.Send(message);
+                    }
+                    catch(Exception emailex)
+                    { }
+                }
 
                 scope.Complete();
             }
 
             return Entity;
         }
+        
 
         public void SetMedicalResultUserPermissions(IList<MedicalResultUserPermission> MedicalResultUserPermissions)
         {
@@ -234,11 +349,12 @@ namespace Kernel.WebApi.BusinessRules
             html_content = html_content.Replace("[Nome]", MedicalExaminationResult.Nome);
             html_content = html_content.Replace("[Email]", MedicalExaminationResult.Email);
             html_content = html_content.Replace("[DataNascimento]", MedicalExaminationResult.DataNascimento);
+            html_content = html_content.Replace("[DataExame]", MedicalExaminationResult.DataExame);
             html_content = html_content.Replace("[RG]", MedicalExaminationResult.RG);
             html_content = html_content.Replace("[Celular]", MedicalExaminationResult.Celular);
             html_content = html_content.Replace("[Sexo]", MedicalExaminationResult.Sexo);
-            html_content = html_content.Replace("[GlicoseMedia]", MedicalExaminationResult.GlicoseMedia);
-            html_content = html_content.Replace("[GlicosePercentual]", MedicalExaminationResult.GlicosePercentual);
+            html_content = html_content.Replace("[GlicoseMedia]", MedicalExaminationResult.GlicoseMedia.ToString());
+            html_content = html_content.Replace("[GlicosePercentual]", MedicalExaminationResult.GlicosePercentual.ToString());
             html_content = html_content.Replace("[Texto1]", MedicalExaminationResult.Texto1);
             html_content = html_content.Replace("[Texto2]", MedicalExaminationResult.Texto2);
             html_content = html_content.Replace("[Texto3]", MedicalExaminationResult.Texto3);

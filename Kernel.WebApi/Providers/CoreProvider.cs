@@ -51,7 +51,7 @@ namespace Kernel.WebApi.Providers
             return A1CContext.MySql.DB.Sql(@" SELECT 
 
                                                UserInfo.*,
-                                               'Patient_Id'  = Patient.Id
+                                               Patient.Id as 'Patient_Id'
 
                                                FROM UserInfo UserInfo
 
@@ -84,6 +84,7 @@ namespace Kernel.WebApi.Providers
 
         public int SaveMedicalResult(MedicalResult Entity)
         {
+            Entity.Uid = Guid.NewGuid().ToString();
             return A1CContext.MySql.DB.Insert("MedicalResult")
                                              .Column("PatientId", Entity.PatientId)
                                              .Column("CreateDate", Entity.CreateDate)
@@ -91,6 +92,7 @@ namespace Kernel.WebApi.Providers
                                              .Column("RepeatDays", Entity.RepeatDays)
                                              .Column("MediumGlycogen", Entity.MediumGlycogen)
                                              .Column("PercentGlycogen", Entity.PercentGlycogen)
+                                             .Column("Uid", Entity.Uid)
                                              .Column("IsDeleted", 0)
                                              .ExecuteReturnLastId<int>();
 
@@ -113,10 +115,11 @@ namespace Kernel.WebApi.Providers
                                                 MedicalResult.RepeatDays,
                                                 MedicalResult.MediumGlycogen,
                                                 MedicalResult.PercentGlycogen,
-                                                'Patient_Name'  = Patient.Name,
-                                                'Patient_RG'  = Patient.RG,
-                                                'Patient_PhoneNumber' = Patient.PhoneNumber,
-                                                'Patient_Email' = Patient.Email
+                                                MedicalResult.Uid,
+                                                Patient.Name as 'Patient_Name',
+                                                Patient.RG as 'Patient_RG',
+                                                Patient.PhoneNumber as 'Patient_PhoneNumber',
+                                                Patient.Email as 'Patient_Email'
 
                                                 FROM MedicalResult MedicalResult
 
@@ -127,6 +130,33 @@ namespace Kernel.WebApi.Providers
                                                 ON Patient.Id = MedicalResult.PatientId
 
                                                 WHERE   (MedicalResult.PatientId = @0  OR MedicalResultUserPermission.UserInfoId = @0)", PersonIdRequester).QueryMany<MedicalResult>();
+        }
+
+        public MedicalResult GetMedicalResult(int Id)
+        {
+            return A1CContext.MySql.DB.Sql(@"SELECT
+                                                MedicalResult.Id,
+                                                MedicalResult.PatientId,
+                                                MedicalResult.CreateDate,
+                                                MedicalResult.ResultDate,
+                                                MedicalResult.RepeatDays,
+                                                MedicalResult.MediumGlycogen,
+                                                MedicalResult.PercentGlycogen,
+                                                MedicalResult.Uid,
+                                                Patient.Name as 'Patient_Name',
+                                                Patient.RG as 'Patient_RG',
+                                                Patient.PhoneNumber as 'Patient_PhoneNumber',
+                                                Patient.Email as 'Patient_Email'
+
+                                                FROM MedicalResult MedicalResult
+
+                                                LEFT JOIN MedicalResultUserPermission MedicalResultUserPermission
+                                                ON MedicalResultUserPermission.MedicalResultId = MedicalResult.Id
+
+                                                LEFT JOIN Patient Patient
+                                                ON Patient.Id = MedicalResult.PatientId
+
+                                                WHERE   MedicalResult.Id =@0", Id).QuerySingle<MedicalResult>();
         }
 
 
@@ -239,6 +269,18 @@ namespace Kernel.WebApi.Providers
 
         }
 
+        public Patient GetPatientById(Int32 Id)
+        {
+            return A1CContext.MySql.DB.Sql(@" SELECT 
+
+                                                * FROM 
+
+                                                Patient Patient
+
+                                                WHERE Patient.Id = @0", Id).QuerySingle<Patient>();
+
+        }
+
         #endregion
 
         #region TextConfig
@@ -270,11 +312,8 @@ namespace Kernel.WebApi.Providers
 
         public IList<UserInfoTextConfig> GetUserTextConfig(int PersonIdRequester)
         {
-            return A1CContext.MySql.DB.Sql(@"select * from UserInfoTextConfig where UserInfoId = @0 AND ISNULL(WasReset,0) = 0", PersonIdRequester).QueryMany<UserInfoTextConfig>();
+            return A1CContext.MySql.DB.Sql(@"select * from UserInfoTextConfig where UserInfoId = @0 AND IFNULL(WasReset,0) = 0", PersonIdRequester).QueryMany<UserInfoTextConfig>();
         }
-
-
-
         #endregion
 
         #region PDF
@@ -286,32 +325,33 @@ namespace Kernel.WebApi.Providers
 
 	                                            Patient.Name												AS 'Nome',
 	                                            Patient.Email												AS 'Email',
-	                                            CONVERT (VARCHAR,Patient.BirthDate, 103)					AS 'DataNascimento',
+												DATE_FORMAT(Patient.BirthDate, '%d/%m/%Y')					AS 'DataNascimento',
+												DATE_FORMAT(MedicalResult.ResultDate, '%d/%m/%Y')			AS 'DataExame',
 	                                            Patient.RG													AS 'RG',
 	                                            Patient.PhoneNumber											AS 'Celular',
-	                                            CASE WHEN (Patient.Gender = 0)
+                                                CASE WHEN (Patient.Gender = 0)
 		                                            THEN 'Masculino'
 		                                            ELSE 'Feminino' END										AS 'Sexo',
 	                                            MedicalResult.MediumGlycogen								AS 'GlicoseMedia',
 	                                            MedicalResult.PercentGlycogen								AS 'GlicosePercentual',
 	                                            CASE WHEN (Texto1.Id IS NOT NULL)
-		                                            THEN Texto1.TextConfig
+		                                            THEN REPLACE(REPLACE(REPLACE(Texto1.TextConfig,'%DataExame%',DATE_FORMAT(MedicalResult.ResultDate, '%d/%m/%Y')),'%HoraExame%',DATE_FORMAT(MedicalResult.ResultDate, '%H:%i')),'%DataProxima%',DATE_FORMAT(DATE_ADD(MedicalResult.ResultDate, INTERVAL MedicalResult.RepeatDays DAY), '%d/%m/%Y'))
 		                                            ELSE 'O valor de Hemoglobina Glicada reportada acima é uma 
 			                                              transcrição do valor obtido pelo sistema A1cNow* e reportado 
-			                                              em ' + CONVERT(VARCHAR,MedicalResult.ResultDate,103) +' as ' + 
-			                                              CONVERT(VARCHAR(5),MedicalResult.ResultDate,108) + '. Foi 
+			                                              em ' + DATE_FORMAT(MedicalResult.ResultDate, '%d/%m/%Y') +' as ' + 
+			                                              DATE_FORMAT(MedicalResult.ResultDate, '%H:%i') + '. Foi 
 			                                              sugerido pelo profissional de saude  que este exame 
 			                                              (Hemoglobina Glicada) se repita em data próxima ' + 
-			                                              CONVERT(VARCHAR, DATEADD(DAY,MedicalResult.RepeatDays,MedicalResult.ResultDate),103) +
+			                                               DATE_FORMAT(DATE_ADD(MedicalResult.ResultDate, INTERVAL MedicalResult.RepeatDays DAY), '%d/%m/%Y') +
 			                                              ' Deseja adicionar este compromisso ao calendário?' END
 																                                            AS 'Texto1',
 	                                            CASE WHEN (Texto2.Id IS NOT NULL)
-		                                            THEN Texto2.TextConfig
+		                                            THEN REPLACE(REPLACE(REPLACE(Texto2.TextConfig,'%DataExame%',DATE_FORMAT(MedicalResult.ResultDate, '%d/%m/%Y')),'%HoraExame%',DATE_FORMAT(MedicalResult.ResultDate, '%H:%i')),'%DataProxima%',DATE_FORMAT(DATE_ADD(MedicalResult.ResultDate, INTERVAL MedicalResult.RepeatDays DAY), '%d/%m/%Y'))
 		                                            ELSE 'A1Cnow é um sistema patenteado para quantificação de Hemoglobina Glicada em 
 			                                              sangue capilar. O sistema é calibrado de acordo com padrões internacionais 
 			                                              (IFCC e NGSP)' END								AS 'Texto2',
 	                                            CASE WHEN (Texto3.Id IS NOT NULL)
-		                                            THEN Texto3.TextConfig
+		                                            THEN REPLACE(REPLACE(REPLACE(Texto3.TextConfig,'%DataExame%',DATE_FORMAT(MedicalResult.ResultDate, '%d/%m/%Y')),'%HoraExame%',DATE_FORMAT(MedicalResult.ResultDate, '%H:%i')),'%DataProxima%',DATE_FORMAT(DATE_ADD(MedicalResult.ResultDate, INTERVAL MedicalResult.RepeatDays DAY), '%d/%m/%Y'))
 		                                            ELSE 'Os valores de referência da hemoglobina glicada são diferentes se o paciente 
 			                                              é ou não diabético. Para alguém que não seja diabético os níveis normais podem 
 			                                              variar de 4,5 a 5,6%. Um resultado entre 5,7 e 6,4% é considerado como 
@@ -320,7 +360,7 @@ namespace Kernel.WebApi.Providers
 			                                              hemoglobina Glicada entre 6,5 e 7,0% são considerados como um indicativo de 
 			                                              um bom controle da doença. Fonte: ANAD' END
 																                                            AS 'Texto3',
-	                                           CONVERT(VARCHAR,MedicalResult.ResultDate,103) + ' ' + CONVERT(VARCHAR,MedicalResult.ResultDate,108) 				
+	                                           DATE_FORMAT(MedicalResult.ResultDate, '%d/%m/%Y') + ' ' + DATE_FORMAT(MedicalResult.ResultDate, '%H:%i') 				
 																                                            AS 'DataExame'
 
 	                                            FROM MedicalResult MedicalResult
@@ -331,17 +371,17 @@ namespace Kernel.WebApi.Providers
 	                                            LEFT JOIN UserInfoTextConfig Texto1
 	                                            ON Texto1.UserInfoId = @0
 	                                            AND Texto1.TextType = 1
-	                                            AND ISNULL(Texto1.WasReset,0) = 0
+	                                            AND IFNULL(Texto1.WasReset,0) = 0
 
 	                                            LEFT JOIN UserInfoTextConfig Texto2
 	                                            ON Texto2.UserInfoId = @0
 	                                            AND Texto2.TextType = 2
-	                                            AND ISNULL(Texto2.WasReset,0) = 0
+	                                            AND IFNULL(Texto2.WasReset,0) = 0
 
 	                                            LEFT JOIN UserInfoTextConfig Texto3
 	                                            ON Texto3.UserInfoId = @0
 	                                            AND Texto3.TextType = 3
-	                                            AND ISNULL(Texto3.WasReset,0) = 0
+	                                            AND IFNULL(Texto3.WasReset,0) = 0
 	
 
 	                                            WHERE MedicalResult.Id = @1"

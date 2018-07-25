@@ -339,6 +339,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Properties\PublishProfiles\a1clocal.pubxml" />
     <None Include="Properties\PublishProfiles\A1CNOW - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\A1CNOW - Web Deploy.pubxml" />
   </ItemGroup>

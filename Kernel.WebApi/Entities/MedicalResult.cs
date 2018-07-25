@@ -8,10 +8,8 @@ using System.Web;
 namespace Kernel.WebApi.Entities
 {
     [HasSelfValidation]
-    public class MedicalResult : EntityBase<MedicalResult>
-   
+    public class MedicalResult : EntityBase<MedicalResult>   
     {
-
         public int Id { get; set; }
         public int PatientId { get; set; }
         public DateTime CreateDate { get; set; }
@@ -20,9 +18,12 @@ namespace Kernel.WebApi.Entities
         public decimal MediumGlycogen { get; set; }
         public decimal PercentGlycogen { get; set; }
         public bool IsDeleted { get; set; }
+
+        //Utilizado apenas na controller para enviar e-mail
+        public bool SendEmailSMS { get; set; }
         public Patient Patient { get; set; }
 
-
+        public string Uid { get; set; }
         #region "Validation"
 
         [SelfValidation]
