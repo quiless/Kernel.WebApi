@@ -206,8 +206,24 @@ namespace Kernel.WebApi.Controllers
             });
         }
 
+        [HttpGet]
+        [AllowAnonymous]
+        public HttpResponseMessage DownloadFile([FromUri] Guid uid)
+        {
+          
+            var path = ConfigurationManager.AppSettings["pdfs"];
+            var video = new VideoStream(path + @"\" + uid + ".pdf");
+            var response = Request.CreateResponse();
+            var contentType = System.Web.MimeMapping.GetMimeMapping(System.IO.Path.GetFileName(path + @"\" + uid + ".pdf"));
+            response.Content = new PushStreamContent(video.WriteToStream, new MediaTypeHeaderValue(contentType));
+          
+
+            return response;
+
+        }
+
         #endregion
-           
+
         #region PDF
         [HttpPost]
         public IHttpActionResult GetPdfData([FromBody] int MedicalResultId)

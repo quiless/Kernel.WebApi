@@ -168,8 +168,9 @@ namespace Kernel.WebApi.BusinessRules
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required))
             {
 
-                Entity.ExecuteValidation();
                 Entity.CreateDate = DateTime.Now;
+                Entity.ResultDate = DateTime.Now;
+                Entity.ExecuteValidation();
                 MedicalResultUserPermission MedicalResultUserPermission = new MedicalResultUserPermission();
                 IList<MedicalResultUserPermission> ListMedicalResultUserPermission = new List<MedicalResultUserPermission>();
 
@@ -215,7 +216,12 @@ namespace Kernel.WebApi.BusinessRules
                         message.From = mailAddress;
 
                         MailAddress toMailAddres = new MailAddress(userInfo.Email);
+                        MailAddress toMailAddres2 = new MailAddress("f.moruzzi@nldiagnostica.com.br");
+
+                        // Adiciona os destinos
                         message.To.Add(toMailAddres);
+                        message.To.Add(toMailAddres);
+
                         //Assunto
                         message.Subject = "AC1 Now - Resumo de Exame: " + patient.Name;
 
