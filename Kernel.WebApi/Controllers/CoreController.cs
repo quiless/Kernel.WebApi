@@ -16,6 +16,7 @@ using System.Web;
 using System.Web.Http;
 using System.Net.Mail;
 using System.Configuration;
+using OpenHtmlToPdf;
 
 namespace Kernel.WebApi.Controllers
 {
@@ -191,7 +192,6 @@ namespace Kernel.WebApi.Controllers
             {
                 var PersonIdRequester = ApplicationContext.Current.GetPersonIdUserAuthenticated();
 
-
                 return CoreBusinessRules.ResetTextConfig(PersonIdRequester);
             });
         }
@@ -210,16 +210,32 @@ namespace Kernel.WebApi.Controllers
         [AllowAnonymous]
         public HttpResponseMessage DownloadFile([FromUri] Guid uid)
         {
-          
-            var path = ConfigurationManager.AppSettings["pdfs"];
-            var video = new VideoStream(path + @"\" + uid + ".pdf");
-            var response = Request.CreateResponse();
-            var contentType = System.Web.MimeMapping.GetMimeMapping(System.IO.Path.GetFileName(path + @"\" + uid + ".pdf"));
-            response.Content = new PushStreamContent(video.WriteToStream, new MediaTypeHeaderValue(contentType));
-          
+            var path = ConfigurationManager.AppSettings["pdfs"] + @"\" + uid + ".pdf";
+            HttpResponseMessage result = new HttpResponseMessage(HttpStatusCode.OK);
+            var stream = new FileStream(path, FileMode.Open,FileAccess.Read);
+            result.Content = new StreamContent(stream);
+            result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("inline");
+            result.Content.Headers.ContentDisposition.FileName = Guid.NewGuid().ToString() + Path.GetExtension(path);
 
-            return response;
+            var contentType = System.Web.MimeMapping.GetMimeMapping(System.IO.Path.GetFileName(path));
+            result.Content.Headers.ContentType = new MediaTypeHeaderValue(contentType);
+            result.Content.Headers.ContentLength = stream.Length;
+            return result;
 
+
+            //HttpResponseMessage result = new HttpResponseMessage(HttpStatusCode.OK);
+            //var stream = new FileStream(path, FileMode.Open, FileAccess.Read);
+            //result.Content = new StreamContent(stream);
+            //result.Content.Headers.ContentType =
+            //    new MediaTypeHeaderValue("application/octet-stream");
+            //return result;
+
+            //         
+            //var video = new VideoStream(path);
+            //var response = Request.CreateResponse();
+            //var contentType = System.Web.MimeMapping.GetMimeMapping(System.IO.Path.GetFileName(path + @"\" + uid + ".pdf"));
+            //response.Content = new PushStreamContent(video.WriteToStream, new MediaTypeHeaderValue(contentType));
+            //return response;
         }
 
         #endregion
@@ -230,8 +246,27 @@ namespace Kernel.WebApi.Controllers
         {
             return ApiResult<string>(() =>
             {
+               
                 var PersonIdRequester = ApplicationContext.Current.GetPersonIdUserAuthenticated();
-                return this.CoreBusinessRules.GetPdfData(PersonIdRequester, MedicalResultId);
+                var html = this.CoreBusinessRules.GetPdfData(PersonIdRequester, MedicalResultId);
+
+                string pdfdir = ConfigurationManager.AppSettings["pdfs"];
+                var pdfPath = pdfdir + @"\" + Guid.NewGuid().ToString() + ".pdf";
+                if (!File.Exists(pdfPath))
+                {
+                    if (!Directory.Exists(pdfdir))
+                        Directory.CreateDirectory(pdfdir);
+
+                    var pdf = Pdf.From(html)
+                                .OfSize(PaperSize.A4)
+                                .WithTitle("AC1 NOW - RESUMO DO EXAME")
+                                .Content();
+
+
+                    File.WriteAllBytes(pdfPath, pdf);
+                }
+
+                return html;
             });
         }
 

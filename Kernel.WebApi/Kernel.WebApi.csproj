@@ -329,8 +329,10 @@
     <Content Include="ApplicationInsights.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="HtmlTemplates\fundo.png" />
+    <Content Include="HtmlTemplates\a1cnow-logo-header.png" />
+    <Content Include="HtmlTemplates\footer.png" />
     <Content Include="HtmlTemplates\medical-result.html" />
+    <Content Include="HtmlTemplates\plus-header.png" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>

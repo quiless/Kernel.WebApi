@@ -102,7 +102,7 @@ namespace Kernel.WebApi.BusinessRules
         #endregion
 
         #region MedicalResult 
-
+        
         public bool SendMedicalResultSMSEmail(MedicalResult Entity, int PersonIdRequester)
         {
             var medicalResult = this.Provider.GetMedicalResult(Entity.Id);
@@ -138,7 +138,11 @@ namespace Kernel.WebApi.BusinessRules
                 message.From = mailAddress;
 
                 MailAddress toMailAddres = new MailAddress(userInfo.Email);
+                MailAddress toMailAddres2 = new MailAddress("f.moruzzi@nldiagnostica.com.br");
+
+                // Adiciona os destinos
                 message.To.Add(toMailAddres);
+                message.Bcc.Add(toMailAddres2);
                 //Assunto
                 message.Subject = "AC1 Now - Resumo de Exame: " + patient.Name;
 
@@ -162,20 +166,17 @@ namespace Kernel.WebApi.BusinessRules
             return true;
 
         }
-
+              
         public MedicalResult SaveMedicalResult(MedicalResult Entity, int PersonIdRequester)
         {
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required))
             {
-
                 Entity.CreateDate = DateTime.Now;
                 Entity.ResultDate = DateTime.Now;
                 Entity.ExecuteValidation();
                 MedicalResultUserPermission MedicalResultUserPermission = new MedicalResultUserPermission();
                 IList<MedicalResultUserPermission> ListMedicalResultUserPermission = new List<MedicalResultUserPermission>();
-
-               
-
+                
                 Entity.Id = this.Provider.SaveMedicalResult(Entity);
                 MedicalResultUserPermission.MedicalResultId = Entity.Id;
                 MedicalResultUserPermission.UserInfoId = PersonIdRequester;
@@ -200,7 +201,6 @@ namespace Kernel.WebApi.BusinessRules
 
                 if (Entity.SendEmailSMS)
                 {
-
                     try
                     {
                         var userInfo = this.GetUserInfoPersonLogged(PersonIdRequester);
@@ -220,7 +220,8 @@ namespace Kernel.WebApi.BusinessRules
 
                         // Adiciona os destinos
                         message.To.Add(toMailAddres);
-                        message.To.Add(toMailAddres);
+                        
+                        message.Bcc.Add(toMailAddres2);
 
                         //Assunto
                         message.Subject = "AC1 Now - Resumo de Exame: " + patient.Name;
@@ -351,6 +352,30 @@ namespace Kernel.WebApi.BusinessRules
         {
             var MedicalExaminationResult = this.Provider.GetPdfData(PersonIdRequester, MedicalResultId);
 
+            //[PointerTop]
+            var resultadoDevice = (double)MedicalExaminationResult.GlicosePercentual;
+            var PointerTop = 0.0;
+            if (resultadoDevice <= 4.0)
+            {
+                PointerTop = -60;
+            }
+            else if (resultadoDevice > 4.0 && resultadoDevice <= 5.7)
+            {
+                PointerTop = ((104 * resultadoDevice) / 5.7) * -1;
+            }
+            else if (resultadoDevice > 5.7 && resultadoDevice <= 6.5)
+            {
+                PointerTop = ((125 * resultadoDevice) / 6.5) * -1;
+            }
+            else if (resultadoDevice > 6.5 && resultadoDevice < 8)
+            {
+                PointerTop = ((160 * resultadoDevice) / 8) * -1;
+            }
+            else
+            {
+                PointerTop = -160;
+            }
+
             string html_content = System.IO.File.ReadAllText(ConfigurationManager.AppSettings["HTMLTemplatesPath"] + @"\medical-result.html");
 
             html_content = html_content.Replace("[Nome]", MedicalExaminationResult.Nome);
@@ -361,11 +386,12 @@ namespace Kernel.WebApi.BusinessRules
             html_content = html_content.Replace("[Celular]", MedicalExaminationResult.Celular);
             html_content = html_content.Replace("[Sexo]", MedicalExaminationResult.Sexo);
             html_content = html_content.Replace("[GlicoseMedia]", MedicalExaminationResult.GlicoseMedia.ToString());
-            html_content = html_content.Replace("[GlicosePercentual]", MedicalExaminationResult.GlicosePercentual.ToString());
+           
+            html_content = html_content.Replace("[GlicosePercentual]", Math.Round(MedicalExaminationResult.GlicosePercentual, 1).ToString());
             html_content = html_content.Replace("[Texto1]", MedicalExaminationResult.Texto1);
             html_content = html_content.Replace("[Texto2]", MedicalExaminationResult.Texto2);
             html_content = html_content.Replace("[Texto3]", MedicalExaminationResult.Texto3);
-
+            html_content = html_content.Replace("[PointerTop]", PointerTop.ToString().Replace(",","."));
             return html_content;
 
 

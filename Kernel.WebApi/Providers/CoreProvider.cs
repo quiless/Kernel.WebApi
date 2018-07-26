@@ -160,6 +160,33 @@ namespace Kernel.WebApi.Providers
         }
 
 
+        public MedicalResult GetMedicalResult(Guid Uid)
+        {
+            return A1CContext.MySql.DB.Sql(@"SELECT
+                                                MedicalResult.Id,
+                                                MedicalResult.PatientId,
+                                                MedicalResult.CreateDate,
+                                                MedicalResult.ResultDate,
+                                                MedicalResult.RepeatDays,
+                                                MedicalResult.MediumGlycogen,
+                                                MedicalResult.PercentGlycogen,
+                                                MedicalResult.Uid,
+                                                Patient.Name as 'Patient_Name',
+                                                Patient.RG as 'Patient_RG',
+                                                Patient.PhoneNumber as 'Patient_PhoneNumber',
+                                                Patient.Email as 'Patient_Email'
+
+                                                FROM MedicalResult MedicalResult
+
+                                                LEFT JOIN MedicalResultUserPermission MedicalResultUserPermission
+                                                ON MedicalResultUserPermission.MedicalResultId = MedicalResult.Id
+
+                                                LEFT JOIN Patient Patient
+                                                ON Patient.Id = MedicalResult.PatientId
+
+                                                WHERE   MedicalResult.Uid =@0", Uid).QuerySingle<MedicalResult>();
+        }
+
         #endregion
 
 
@@ -175,43 +202,40 @@ namespace Kernel.WebApi.Providers
 
 	                                            MedicalResultUserPermission
 
-                                            SELECT
+	                                            SELECT
 
-	                                            MedicalResultUserPermission.MedicalResultId,
-	                                            @1
+	                                                MedicalResult.Id,
+	                                                @1
 	
 	
-	                                            FROM MedicalResult MedicalResult
+	                                                FROM MedicalResult MedicalResult
 
-	                                            INNER JOIN Patient Patient
-	                                            ON Patient.Id = MedicalResult.PatientId
+	                                                INNER JOIN Patient Patient
+	                                                ON Patient.Id = MedicalResult.PatientId
 
-	                                            LEFT JOIN MedicalResultUserPermission MedicalResultUserPermission
-	                                            ON MedicalResultUserPermission.MedicalResultId = MedicalResult.Id
+	                                                LEFT JOIN MedicalResultUserPermission MedicalResultUserPermission
+	                                                ON MedicalResultUserPermission.MedicalResultId = MedicalResult.Id
 
-	                                            WHERE Patient.RG = @0
+	                                                WHERE Patient.RG = @0
+		                                            AND MedicalResult.Id NOT IN (
+				                                            SELECT
 
-	                                            GROUP BY MedicalResultUserPermission.MedicalResultId
+				                                            MedicalResultUserPermission.MedicalResultId
+				                                            FROM MedicalResult MedicalResult
 
-                                            EXCEPT
+				                                            INNER JOIN Patient Patient
+				                                            ON Patient.Id = MedicalResult.PatientId
 
-                                            SELECT
+				                                            LEFT JOIN MedicalResultUserPermission MedicalResultUserPermission
+				                                            ON MedicalResultUserPermission.MedicalResultId = MedicalResult.Id
 
-	                                            MedicalResultUserPermission.MedicalResultId,
-	                                            @1
-	
-	                                            FROM MedicalResult MedicalResult
+				                                            WHERE Patient.RG = @0
+				                                            AND MedicalResultUserPermission.UserInfoId = @1
 
-	                                            INNER JOIN Patient Patient
-	                                            ON Patient.Id = MedicalResult.PatientId
-
-	                                            LEFT JOIN MedicalResultUserPermission MedicalResultUserPermission
-	                                            ON MedicalResultUserPermission.MedicalResultId = MedicalResult.Id
-
-	                                            WHERE Patient.RG = @0
-	                                            AND MedicalResultUserPermission.UserInfoId = @1
-
-	                                            GROUP BY MedicalResultUserPermission.MedicalResultId
+				                                            GROUP BY MedicalResultUserPermission.MedicalResultId
+		                                            )
+												
+	                                                GROUP BY MedicalResult.Id
 
                                             ", RG, PersonIdRequester).Execute();
         }
@@ -336,14 +360,14 @@ namespace Kernel.WebApi.Providers
 	                                            MedicalResult.PercentGlycogen								AS 'GlicosePercentual',
 	                                            CASE WHEN (Texto1.Id IS NOT NULL)
 		                                            THEN REPLACE(REPLACE(REPLACE(Texto1.TextConfig,'%DataExame%',DATE_FORMAT(MedicalResult.ResultDate, '%d/%m/%Y')),'%HoraExame%',DATE_FORMAT(MedicalResult.ResultDate, '%H:%i')),'%DataProxima%',DATE_FORMAT(DATE_ADD(MedicalResult.ResultDate, INTERVAL MedicalResult.RepeatDays DAY), '%d/%m/%Y'))
-		                                            ELSE 'O valor de Hemoglobina Glicada reportada acima é uma 
+		                                            ELSE CONCAT('O valor de Hemoglobina Glicada reportada acima é uma 
 			                                              transcrição do valor obtido pelo sistema A1cNow* e reportado 
-			                                              em ' + DATE_FORMAT(MedicalResult.ResultDate, '%d/%m/%Y') +' as ' + 
-			                                              DATE_FORMAT(MedicalResult.ResultDate, '%H:%i') + '. Foi 
+			                                              em ',DATE_FORMAT(MedicalResult.ResultDate, '%d/%m/%Y'),' as ' , 
+			                                              DATE_FORMAT(MedicalResult.ResultDate, '%H:%i') , '. Foi 
 			                                              sugerido pelo profissional de saude  que este exame 
-			                                              (Hemoglobina Glicada) se repita em data próxima ' + 
-			                                               DATE_FORMAT(DATE_ADD(MedicalResult.ResultDate, INTERVAL MedicalResult.RepeatDays DAY), '%d/%m/%Y') +
-			                                              ' Deseja adicionar este compromisso ao calendário?' END
+			                                              (Hemoglobina Glicada) se repita em data próxima ' ,
+			                                               DATE_FORMAT(DATE_ADD(MedicalResult.ResultDate, INTERVAL MedicalResult.RepeatDays DAY), '%d/%m/%Y') ,
+			                                              ' Deseja adicionar este compromisso ao calendário?') END
 																                                            AS 'Texto1',
 	                                            CASE WHEN (Texto2.Id IS NOT NULL)
 		                                            THEN REPLACE(REPLACE(REPLACE(Texto2.TextConfig,'%DataExame%',DATE_FORMAT(MedicalResult.ResultDate, '%d/%m/%Y')),'%HoraExame%',DATE_FORMAT(MedicalResult.ResultDate, '%H:%i')),'%DataProxima%',DATE_FORMAT(DATE_ADD(MedicalResult.ResultDate, INTERVAL MedicalResult.RepeatDays DAY), '%d/%m/%Y'))

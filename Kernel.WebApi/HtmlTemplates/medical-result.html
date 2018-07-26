@@ -4,15 +4,17 @@
     <title></title>
     <meta charset="utf-8" />
     <style>
-        body {
-            padding: 20px;
+        html,body{
+             padding: 20px;
             font-family: Verdana;
-          
+        }
+
+        body{
+            height: 29.7cm; 
         }
 
 
         .rangeBlock {
-            margin-left: 30px;
         }
 
         .red {
@@ -34,9 +36,22 @@
         }
 
         .rangeGraph {
-            border: 1rem !important;
+                /* border: 1rem !important; */
             border-color: black !important;
             height: 100%;
+            padding: 10px;
+            border-radius: 30px;
+            border: 1px solid #000;
+        }
+
+        .rangeBlock.topRadius{
+            border-top-right-radius: 25px;
+            border-top-left-radius: 25px;
+        }
+
+        .rangeBlock.bottomRadius{
+            border-bottom-right-radius: 25px;
+            border-bottom-left-radius: 25px;
         }
 
         .legenda-item {
@@ -71,11 +86,10 @@
 
         .pointer {
             position: relative;
-            left: 100%;
+            left: 110%;
             width: 145%;
             text-align: left;
             font-size: 20px;
-            top: -100%;
         }
 
             .pointer span {
@@ -112,6 +126,14 @@
             width: 30%;
         }
 
+        .s-33 {
+            width: 33%;
+        }
+
+        .s-35 {
+            width: 33%;
+        }
+
         .clear {
             clear: both;
         }
@@ -120,12 +142,15 @@
             text-align: center;
             background-color: yellow;
             padding: 3px;
-            border-radius: 4px;
+            border-radius: 10px;
         }
     </style>
 </head>
 <body>
-
+    <div style="height:120px;">
+        <img src="http://200.98.116.9:8086/HtmlTemplates/a1cnow-logo-header.png" width="200" style="position:relative;float:left;top: 40px;" />
+        <img src="http://200.98.116.9:8086/HtmlTemplates/plus-header.png" width="150" style="position: relative;float: right;" />
+    </div>
     <div>
         <table style="width:100%;border:1px solid #000;">
             <tr style="">
@@ -153,35 +178,35 @@
     <br />
     <div class="f-left s-15" style="height:200px;margin-left:60px;">
         <div class="rangeGraph">
-            <div class="red rangeBlock">
+            <div class="red rangeBlock topRadius">
             </div>
             <div class="yellow rangeBlock">
             </div>
-            <div class="green rangeBlock">
+            <div class="green rangeBlock bottomRadius">
             </div>
 
-            <div class="pointer">
-                <img src="https://png.icons8.com/windows/1600/long-arrow-right.png" style="transform: rotate(180deg);position: relative;top: 100px;" width="50" height="50" /><span style="display: block;position: relative;top: 100px;left: 40px;"> &nbsp; A1c:[GlicosePercentual]%</span>
+            <div class="pointer" style="top:[PointerTop]%">
+                <img src="https://png.icons8.com/windows/1600/long-arrow-right.png" style="transform: rotate(180deg);position: relative;top: 100px;" width="50" height="50" /><span style="display: block;position: relative;top: 57px;left: 40px;"> &nbsp; A1c:[GlicosePercentual]%</span>
             </div>
 
         </div>
     </div>
-    <div class="f-right s-25">
+    <div class="f-right s-30">
         <div style="float: left;margin-left: 30px;">
             <b> Referência </b>
             <br />
             <div class="legenda-item" style="margin-top:10px">
-                <span style="background-color: red"></span>Diabetes
+                <span style="background-color: red"></span>Diabetes (acima de 6.5%)
             </div>
             <div class="legenda-item">
-                <span style="background-color: yellow"></span>Pré-Diabetes
+                <span style="background-color: yellow"></span>Pré-Diabetes (5.8% a 6.5%)
             </div>
             <div class="legenda-item">
-                <span style="background-color: green"></span>Normal
+                <span style="background-color: green"></span>Normal (até 5.7%)
             </div>
         </div>
     </div>
-    <div class="f-right s-30">
+    <div class="f-right s-35">
         <p style="text-align:center;">
             Glicose Estimada média:
             <br />
@@ -201,6 +226,13 @@
         <p>[Texto2]</p>
         <br />
         <p>[Texto3]</p>
+    </div>   
+    
+    
+   
+    
+    <div style="position: absolute; top: 30cm;width: 22.5cm;margin-left:-5px;">
+<img src="http://200.98.116.9:8086/HtmlTemplates/footer.png" style="width:100%"/>
     </div>
 
 </body>
